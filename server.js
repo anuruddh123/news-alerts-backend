@@ -38,10 +38,11 @@ const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 const { scheduleNewsPolling } = require('./controllers/newsController');
 
 const app = express();
+const CLIENT_URL = (process.env.CLIENT_URL || 'https://news-alertss.netlify.app').replace(/\/+$/, '');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'https://news-alertss.netlify.app',
+    origin: CLIENT_URL,
     methods: ['GET', 'POST'],
   },
 });
@@ -61,7 +62,7 @@ io.use(async (socket, next) => {
 });
 
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT_URL || 'https://news-alertss.netlify.app' }));
+app.use(cors({ origin: CLIENT_URL }));
 app.use(morgan('dev'));
 
 const limiter = rateLimit({
