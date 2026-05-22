@@ -41,7 +41,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'https://news-alertss.netlify.app',
     methods: ['GET', 'POST'],
   },
 });
@@ -61,7 +61,7 @@ io.use(async (socket, next) => {
 });
 
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }));
+app.use(cors({ origin: process.env.CLIENT_URL || 'https://news-alertss.netlify.app' }));
 app.use(morgan('dev'));
 
 const limiter = rateLimit({
