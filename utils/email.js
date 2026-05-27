@@ -1,27 +1,34 @@
 const nodemailer = require('nodemailer');
 
-// ✅ STABLE SMTP TRANSPORTER (Render Compatible)
+// ✅ RENDER + BREVO STABLE SMTP
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT) || 587,
+  port: Number(process.env.EMAIL_PORT) || 2525,
+
+  // ✅ IMPORTANT
   secure: false,
+  requireTLS: true,
 
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 
-  // ✅ Prevent hanging
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
+  // ✅ Better stability on Render
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
+
+  pool: true,
+  maxConnections: 5,
+  maxMessages: 100,
 
   tls: {
     rejectUnauthorized: false,
   },
 });
 
-// ✅ VERIFY SMTP CONNECTION
+// ✅ VERIFY SMTP
 transporter.verify((error) => {
   if (error) {
     console.error('❌ SMTP Verification Failed:', error.message);
@@ -43,7 +50,6 @@ const sendEmail = async (options) => {
     to: options.email,
     subject: options.subject,
     html: options.html,
-
     text:
       options.text ||
       options.html.replace(/<[^>]*>?/gm, ''),
