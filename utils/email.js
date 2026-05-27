@@ -1,21 +1,28 @@
 const nodemailer = require('nodemailer');
 
-// ✅ SIMPLE & STABLE GMAIL TRANSPORTER
+// ✅ STABLE SMTP TRANSPORTER (Render Compatible)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT) || 587,
+  secure: false,
+
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password
+    pass: process.env.EMAIL_PASS,
   },
 
-  // ✅ Prevent long hanging on Render
+  // ✅ Prevent hanging
   connectionTimeout: 10000,
   greetingTimeout: 10000,
   socketTimeout: 10000,
+
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
-// ✅ VERIFY SMTP
-transporter.verify((error, success) => {
+// ✅ VERIFY SMTP CONNECTION
+transporter.verify((error) => {
   if (error) {
     console.error('❌ SMTP Verification Failed:', error.message);
   } else {
@@ -36,6 +43,7 @@ const sendEmail = async (options) => {
     to: options.email,
     subject: options.subject,
     html: options.html,
+
     text:
       options.text ||
       options.html.replace(/<[^>]*>?/gm, ''),
@@ -50,8 +58,10 @@ const sendEmail = async (options) => {
   } catch (error) {
     console.error('❌ EMAIL SEND FAILED:', {
       email: options.email,
+      subject: options.subject,
       error: error.message,
       code: error.code,
+      response: error.response,
     });
 
     throw error;
